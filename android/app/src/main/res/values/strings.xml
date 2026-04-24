@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">vetsafe Tracker</string>
+    <string name="title_activity_main">vetsafe Tracker</string>
+    <string name="package_name">com.mathi.vetsafe</string>
+    <string name="custom_url_scheme">com.mathi.vetsafe</string>
+</resources>

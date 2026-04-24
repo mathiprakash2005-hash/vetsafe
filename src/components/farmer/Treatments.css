@@ -1,0 +1,274 @@
+/* Treatment Records Page Specific Styles */
+
+.treatment-row {
+  animation: slideInRow 0.5s ease backwards;
+}
+
+.treatment-row:nth-child(1) { animation-delay: 0.05s; }
+.treatment-row:nth-child(2) { animation-delay: 0.1s; }
+.treatment-row:nth-child(3) { animation-delay: 0.15s; }
+.treatment-row:nth-child(4) { animation-delay: 0.2s; }
+.treatment-row:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes slideInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Table Cell Styles */
+.animal-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.animal-badge {
+  padding: 0.5rem 1rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 10px;
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.9rem;
+}
+
+.doctor-cell,
+.medicine-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.doctor-cell i,
+.medicine-cell i {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  color: var(--primary);
+  font-size: 0.875rem;
+}
+
+.dosage-badge {
+  padding: 0.5rem 1rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  display: inline-block;
+}
+
+.withdrawal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 10px;
+  font-weight: 600;
+  color: var(--warning);
+  font-size: 0.875rem;
+}
+
+.safe-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.safe-date-badge.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: var(--success);
+}
+
+.safe-date-badge.warning {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.safe-date-badge.pending {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: var(--info);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-action {
+  padding: 0.625rem 1rem;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  white-space: nowrap;
+}
+
+.btn-action-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-action-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-action-view {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 0.625rem;
+}
+
+.btn-action-view:hover {
+  border-color: var(--primary);
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--primary);
+}
+
+/* Status Badge Variations */
+.status-pending {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--info);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* Modal Specific Styles */
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+/* Responsive Table */
+@media (max-width: 1400px) {
+  .data-table {
+    font-size: 0.875rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 1rem 0.875rem;
+  }
+
+  .btn-action {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .data-table {
+    min-width: 900px;
+  }
+}
+
+@media (max-width: 640px) {
+  .animal-badge,
+  .dosage-badge,
+  .withdrawal-badge,
+  .safe-date-badge {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .doctor-cell i,
+  .medicine-cell i {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Hover Effects */
+.treatment-row:hover {
+  background: rgba(16, 185, 129, 0.03);
+}
+
+.treatment-row:hover .animal-badge {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+.treatment-row:hover .doctor-cell i,
+.treatment-row:hover .medicine-cell i {
+  background: rgba(16, 185, 129, 0.15);
+  transform: scale(1.1);
+}
+
+/* Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-row {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    rgba(16, 185, 129, 0.05) 50%,
+    var(--bg-card) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "466297998023",
+    "project_id": "poultry-e0c80",
+    "storage_bucket": "poultry-e0c80.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:466297998023:android:4113bcfb872e4bec268ce2",
+        "android_client_info": {
+          "package_name": "com.mathi.vetsafe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "466297998023-q35998n7h1o588sssmc3jludltp9k9an.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxKaZ3rIpThQ5oWQ_oU820UZGSyn0y8lI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "466297998023-q35998n7h1o588sssmc3jludltp9k9an.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

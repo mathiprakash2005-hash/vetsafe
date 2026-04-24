@@ -1,0 +1,46 @@
+# Environment variables with sensitive data
+.env
+backend/.env
+
+# Firebase credentials
+firebase-service-account.json
+**/firebase-service-account.json
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Model files (optional - uncomment if models are large)
+# models/*.pkl
