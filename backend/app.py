@@ -53,10 +53,13 @@ try:
     model = joblib.load('models/logistic_regression_model.pkl')
     scaler = joblib.load('models/scaler.pkl')
     label_encoders = joblib.load('models/label_encoders.pkl')
-    print("✓ ML model and preprocessors loaded successfully")
+    print('✓ ML model and preprocessors loaded successfully')
 except Exception as e:
-    print(f"✗ Model loading error: {e}")
+    print(f'✗ Model loading error: {e}')
     model, scaler, label_encoders = None, None, None
+
+# Initialize Firebase on startup
+initialize_firebase()
 
 
 def preprocess_data(data):
