@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { auth, db, signInWithEmailAndPassword, signOut, doc, getDoc, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from '../../config/firebase'
+import { auth, db, signInWithEmailAndPassword, signOut, doc, getDoc, GoogleAuthProvider, signInWithRedirect, getRedirectResult, sendPasswordResetEmail } from '../../config/firebase'
 import { useEffect } from 'react'
 import './FarmerLogin.css'
 
@@ -56,26 +56,8 @@ function FarmerLogin() {
   }, [])
 
   const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider()
     try {
-      if (/android|capacitor/i.test(navigator.userAgent) || window.Capacitor) {
-        await signInWithRedirect(auth, provider)
-      } else {
-        const result = await signInWithPopup(auth, provider)
-        const userDoc = await getDoc(doc(db, 'users', result.user.uid))
-        if (userDoc.exists()) {
-          if (userDoc.data().role === 'farmer') {
-            navigate('/farmer-dashboard')
-          } else {
-            await signOut(auth)
-            setError('This account is not registered as a farmer.')
-          }
-        } else {
-          await signOut(auth)
-          setError('Account not found. Please register first.')
-          setTimeout(() => navigate('/farmer-register'), 2000)
-        }
-      }
+      await signInWithRedirect(auth, new GoogleAuthProvider())
     } catch (err) {
       setError(err.message)
     }

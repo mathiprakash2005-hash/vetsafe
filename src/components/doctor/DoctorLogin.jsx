@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, sendPasswordResetEmail, doc, getDoc, setDoc, serverTimestamp } from '../../config/firebase'
+import { auth, db, signInWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider, sendPasswordResetEmail, doc, getDoc, setDoc, serverTimestamp } from '../../config/firebase'
 
 export default function DoctorLogin() {
   const navigate = useNavigate()
@@ -71,31 +71,7 @@ export default function DoctorLogin() {
 
   const handleGoogleLogin = async () => {
     try {
-      const provider = new GoogleAuthProvider()
-      if (/android|capacitor/i.test(navigator.userAgent) || window.Capacitor) {
-        await signInWithRedirect(auth, provider)
-      } else {
-        const result = await signInWithPopup(auth, provider)
-        const userDoc = await getDoc(doc(db, 'users', result.user.uid))
-        if (userDoc.exists()) {
-          if (userDoc.data().role === 'doctor') {
-            navigate('/doctor-dashboard')
-          } else {
-            await auth.signOut()
-            showMsg('This account is not registered as a doctor.', 'error')
-          }
-        } else {
-          await setDoc(doc(db, 'users', result.user.uid), {
-            name: result.user.displayName || 'Doctor',
-            email: result.user.email,
-            role: 'doctor',
-            verified: false,
-            specialization: 'Veterinary Medicine',
-            createdAt: serverTimestamp()
-          })
-          navigate('/doctor-dashboard')
-        }
-      }
+      await signInWithRedirect(auth, new GoogleAuthProvider())
     } catch (error) {
       showMsg('Google sign-in failed.', 'error')
     }

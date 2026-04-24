@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { auth, db, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, sendPasswordResetEmail, doc, getDoc, signOut } from '../../config/firebase'
+import { auth, db, signInWithEmailAndPassword, signInWithRedirect, getRedirectResult, GoogleAuthProvider, sendPasswordResetEmail, doc, getDoc, signOut } from '../../config/firebase'
 
 export default function BuyerLogin() {
   const navigate = useNavigate()
@@ -65,28 +65,8 @@ export default function BuyerLogin() {
   }, [])
 
   const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider()
-    setLoading(true)
     try {
-      if (/android|capacitor/i.test(navigator.userAgent) || window.Capacitor) {
-        await signInWithRedirect(auth, provider)
-      } else {
-        const result = await signInWithPopup(auth, provider)
-        const userDoc = await getDoc(doc(db, 'users', result.user.uid))
-        if (userDoc.exists()) {
-          if (userDoc.data().role === 'buyer') {
-            navigate('/buyer-dashboard')
-          } else {
-            await signOut(auth)
-            showMsg('This account is not registered as a buyer.', 'error')
-            setLoading(false)
-          }
-        } else {
-          await signOut(auth)
-          showMsg('Account not found. Please register first.', 'error')
-          setTimeout(() => navigate('/buyer-register'), 2000)
-        }
-      }
+      await signInWithRedirect(auth, new GoogleAuthProvider())
     } catch (err) {
       showMsg('Google sign-in failed.', 'error')
       setLoading(false)

@@ -617,20 +617,32 @@ td {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
+/* ─── Sidebar Overlay ─── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 99;
+  backdrop-filter: blur(2px);
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
+    z-index: 200;
   }
-
   .sidebar.active {
     transform: translateX(0);
   }
-
+  .sidebar-overlay {
+    display: block;
+  }
   .main-content {
     margin-left: 0;
+    padding-top: 80px;
   }
-
   .menu-toggle {
     display: flex;
     align-items: center;
@@ -640,18 +652,181 @@ td {
 
 @media (max-width: 640px) {
   .main-content {
-    padding: 1.5rem;
+    padding: 80px 14px 90px;
   }
 
+  .menu-toggle {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 1.2rem;
+  }
+
+  .header {
+    padding: 1.25rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+  }
   .header-left h2 {
-    font-size: 2rem;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+  }
+  .header-left p {
+    font-size: 0.85rem;
   }
 
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    border-radius: 14px;
+    animation: none;
+  }
+  .stat-badge {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.6rem;
+  }
   .stat-value {
-    font-size: 2.5rem;
+    font-size: 2rem;
+    letter-spacing: -1px;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  .stat-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .stat-change {
+    font-size: 0.75rem;
+  }
+
+  .quick-actions {
+    padding: 1.25rem;
+    border-radius: 20px;
+    margin-bottom: 1.5rem;
+  }
+  .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  .action-card {
+    padding: 1rem 0.75rem;
+    border-radius: 16px;
+  }
+  .action-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .action-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+  }
+  .action-desc {
+    font-size: 0.75rem;
   }
 
   .section-title {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-title i {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .data-section {
+    padding: 1.25rem;
+    border-radius: 20px;
+  }
+
+  /* ── Table → card layout ── */
+  .table-container {
+    border: none;
+    margin-top: 0;
+    overflow: visible;
+  }
+  table, thead, tbody, th, td, tr { display: block; }
+  thead { display: none; }
+  tbody tr {
+    background: rgba(102, 126, 234, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transform: none !important;
+  }
+  tbody tr:hover {
+    border-color: var(--primary);
+    transform: none !important;
+  }
+  td {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.35rem 0;
+    font-size: 0.85rem;
+    border: none;
+  }
+  td::before {
+    content: attr(data-label);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+
+  /* ── Mobile bottom nav ── */
+  .bd-mobile-nav {
+    display: flex;
   }
 }
+
+/* ─── Mobile Bottom Nav ─── */
+.bd-mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.bd-mob-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s;
+}
+.bd-mob-btn i { font-size: 18px; }
+.bd-mob-btn--active { color: var(--primary); }
+.bd-mob-btn:hover { color: var(--primary); }

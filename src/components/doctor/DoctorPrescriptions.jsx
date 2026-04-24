@@ -120,16 +120,18 @@ export default function DoctorPrescriptions() {
                     const rejectedDate = rx.rejectedAt ? new Date(rx.rejectedAt.toDate()) : null
                     return (
                       <tr key={rx.id}>
-                        <td>{rx.farmerName || 'N/A'}</td>
-                        <td className="animal-id">#{rx.animalId}</td>
-                        <td>
+                        <td data-label="Farmer">{rx.farmerName || 'N/A'}</td>
+                        <td data-label="Animal" className="animal-id">#{rx.animalId}</td>
+                        <td data-label="Status">
                           <span className="status-badge status-rejected">
                             <i className="fas fa-times-circle"></i> Rejected
                           </span>
                         </td>
-                        <td colSpan="3" style={{fontStyle: 'italic', color: 'var(--text-muted)'}}>No prescription given</td>
-                        <td>—</td>
-                        <td>{rejectedDate ? rejectedDate.toLocaleDateString() : 'N/A'}</td>
+                        <td data-label="Medicine" style={{fontStyle: 'italic', color: 'var(--text-muted)'}}>No prescription given</td>
+                        <td data-label="Dosage" style={{color: 'var(--text-muted)'}}>—</td>
+                        <td data-label="Withdrawal" style={{color: 'var(--text-muted)'}}>—</td>
+                        <td data-label="Safe Date" style={{color: 'var(--text-muted)'}}>—</td>
+                        <td data-label="Date">{rejectedDate ? rejectedDate.toLocaleDateString() : 'N/A'}</td>
                       </tr>
                     )
                   }
@@ -141,22 +143,22 @@ export default function DoctorPrescriptions() {
 
                   return (
                     <tr key={rx.id}>
-                      <td>{rx.farmerName || 'N/A'}</td>
-                      <td className="animal-id">#{rx.animalId}</td>
-                      <td>
+                      <td data-label="Farmer">{rx.farmerName || 'N/A'}</td>
+                      <td data-label="Animal" className="animal-id">#{rx.animalId}</td>
+                      <td data-label="Status">
                         <span className="status-badge status-accepted">
                           <i className="fas fa-check-circle"></i> Accepted
                         </span>
                       </td>
-                      <td>{rx.medicineName}</td>
-                      <td>{rx.dosage}</td>
-                      <td>{rx.withdrawalDays} days</td>
-                      <td>
+                      <td data-label="Medicine">{rx.medicineName}</td>
+                      <td data-label="Dosage">{rx.dosage}</td>
+                      <td data-label="Withdrawal">{rx.withdrawalDays} days</td>
+                      <td data-label="Safe Date">
                         <span className={`safe-date ${isWarning ? 'warning' : ''}`}>
                           {safeDate ? safeDate.toLocaleDateString() : 'N/A'}
                         </span>
                       </td>
-                      <td>{createdDate ? createdDate.toLocaleDateString() : 'N/A'}</td>
+                      <td data-label="Date">{createdDate ? createdDate.toLocaleDateString() : 'N/A'}</td>
                     </tr>
                   )
                 })

@@ -96,17 +96,17 @@ export default function ApprovedPrescriptions() {
 
                   return (
                     <tr key={rx.id}>
-                      <td>{rx.farmerName || 'N/A'}</td>
-                      <td className="animal-id">#{rx.animalId}</td>
-                      <td>{rx.medicineName}</td>
-                      <td>{rx.dosage}</td>
-                      <td>{rx.withdrawalDays} days</td>
-                      <td>
+                      <td data-label="Farmer">{rx.farmerName || 'N/A'}</td>
+                      <td data-label="Animal" className="animal-id">#{rx.animalId}</td>
+                      <td data-label="Medicine">{rx.medicineName}</td>
+                      <td data-label="Dosage">{rx.dosage}</td>
+                      <td data-label="Withdrawal">{rx.withdrawalDays} days</td>
+                      <td data-label="Safe Date">
                         <span className={`safe-date ${isWarning ? 'warning' : ''}`}>
                           {safeDate ? safeDate.toLocaleDateString() : 'N/A'}
                         </span>
                       </td>
-                      <td>{createdDate ? createdDate.toLocaleDateString() : 'N/A'}</td>
+                      <td data-label="Date">{createdDate ? createdDate.toLocaleDateString() : 'N/A'}</td>
                     </tr>
                   )
                 })

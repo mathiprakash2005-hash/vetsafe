@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { auth, db, collection, query, where, getDocs } from '../../config/firebase'
 import './WithdrawalAnimals.css'
 
+const API_URL = import.meta.env.VITE_API_URL
+
 export default function WithdrawalAnimals() {
   const navigate = useNavigate()
   const [animals, setAnimals] = useState([])
@@ -57,7 +59,7 @@ export default function WithdrawalAnimals() {
             // Fetch ML prediction from backend
             let riskData = null
             try {
-              const response = await fetch('http://localhost:5000/predict', {
+              const response = await fetch(`${API_URL}/predict`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

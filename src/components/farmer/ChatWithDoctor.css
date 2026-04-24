@@ -609,6 +609,22 @@
   font-weight: 500;
 }
 
+/* ─── Mobile back button — hidden on desktop ─── */
+.wa-mobile-back {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: #aebac1;
+  font-size: 18px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 1024px) {
   .wa-root {
@@ -618,12 +634,51 @@
 
 @media (max-width: 768px) {
   .wa-root {
-    grid-template-columns: 1fr;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .wa-sidebar,
+  .wa-main {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
   }
 
   .wa-sidebar {
-    display: none;
+    transform: translateX(0);
+    z-index: 1;
+    visibility: visible;
+    pointer-events: auto;
+    display: flex;
   }
+  .wa-root.wa-chat-open .wa-sidebar {
+    transform: translateX(-100%);
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .wa-main {
+    transform: translateX(100%);
+    z-index: 2;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .wa-root.wa-chat-open .wa-main {
+    transform: translateX(0);
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .wa-mobile-back { display: flex; }
 
   .wa-messages {
     padding: 20px 5%;

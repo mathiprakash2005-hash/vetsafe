@@ -48,50 +48,60 @@ function SoldHistory() {
     }
   }
 
+  const handleBack = () => {
+    try {
+      navigate(-1)
+    } catch {
+      navigate('/farmer-dashboard')
+    }
+  }
+
   return (
     <div className="sold-container">
-      <div className="header">
-        <h1 className="page-title">Product Sold History</h1>
-        <button className="back-btn" onClick={() => navigate('/farmer-dashboard')}>
+      <div className="sold-header">
+        <button className="sold-back-btn" onClick={handleBack}>
           <i className="fas fa-arrow-left"></i>
-          Back to Dashboard
+          <span>Back</span>
         </button>
+        <h1 className="sold-page-title">Sold History</h1>
       </div>
 
-      {loading ? (
-        <div style={{textAlign: 'center'}}>
-          <div className="spinner"></div>
-          <p style={{color: 'var(--text-muted)'}}>Loading sold products...</p>
-        </div>
-      ) : soldProducts.length === 0 ? (
-        <div className="empty-state">
-          <i className="fas fa-shopping-cart"></i>
-          <p>No products sold yet</p>
-          <p style={{fontSize: '0.9rem', marginTop: '0.5rem'}}>Products will appear here when buyers approve your certificates</p>
-        </div>
-      ) : (
-        <div className="sold-grid">
-          {soldProducts.map(purchase => (
-            <div key={purchase.id} className="sold-item">
-              <div className="sold-icon">
-                <i className="fas fa-box-open"></i>
-              </div>
-              <div className="sold-details">
-                <div className="sold-title">
-                  {purchase.productType} - {purchase.quantity} {purchase.productType === 'Milk' ? 'L' : purchase.productType === 'Eggs' ? 'pcs' : 'kg'}
+      <div className="sold-content">
+        {loading ? (
+          <div className="sold-loading">
+            <div className="spinner"></div>
+            <p>Loading sold products...</p>
+          </div>
+        ) : soldProducts.length === 0 ? (
+          <div className="sold-empty-state">
+            <i className="fas fa-shopping-cart"></i>
+            <p>No products sold yet</p>
+            <p className="sold-empty-sub">Products will appear here when buyers approve your certificates</p>
+          </div>
+        ) : (
+          <div className="sold-grid">
+            {soldProducts.map(purchase => (
+              <div key={purchase.id} className="sold-item">
+                <div className="sold-icon">
+                  <i className="fas fa-box-open"></i>
                 </div>
-                <div className="sold-meta">
-                  <span><i className="fas fa-user"></i> Buyer: {purchase.buyerName || 'N/A'}</span>
-                  <span><i className="fas fa-paw"></i> Animal: {purchase.animalId || 'N/A'}</span>
-                  <span><i className="fas fa-calendar"></i> {purchase.purchaseDate?.toDate().toLocaleDateString() || 'N/A'}</span>
-                  <span><i className="fas fa-certificate"></i> {purchase.certId || 'N/A'}</span>
+                <div className="sold-details">
+                  <div className="sold-title">
+                    {purchase.productType} - {purchase.quantity} {purchase.productType === 'Milk' ? 'L' : purchase.productType === 'Eggs' ? 'pcs' : 'kg'}
+                  </div>
+                  <div className="sold-meta">
+                    <span><i className="fas fa-user"></i> {purchase.buyerName || 'N/A'}</span>
+                    <span><i className="fas fa-paw"></i> {purchase.animalId || 'N/A'}</span>
+                    <span><i className="fas fa-calendar"></i> {purchase.purchaseDate?.toDate().toLocaleDateString() || 'N/A'}</span>
+                    <span><i className="fas fa-certificate"></i> {purchase.certId || 'N/A'}</span>
+                  </div>
                 </div>
+                <div className="sold-badge">✓ Sold</div>
               </div>
-              <div className="sold-badge">✓ Sold</div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

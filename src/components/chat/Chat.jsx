@@ -157,6 +157,7 @@ export default function Chat() {
     setInput('')
   }
 
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTextMessage() }
   }

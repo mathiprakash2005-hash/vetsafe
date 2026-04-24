@@ -16,6 +16,7 @@ function ChatWithDoctor() {
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(true)
   const [fullscreenImage, setFullscreenImage] = useState(null)
   
   const mediaRecorderRef = useRef(null)
@@ -278,7 +279,7 @@ function ChatWithDoctor() {
   }
 
   return (
-    <div className="wa-root">
+    <div className={`wa-root ${!showSidebar ? 'wa-chat-open' : ''}`}>
       {/* Sidebar */}
       <aside className="wa-sidebar">
         <div className="wa-sidebar-header">
@@ -299,7 +300,7 @@ function ChatWithDoctor() {
               <div
                 key={doctor.id}
                 className={`wa-doctor-item ${selectedDoctor?.id === doctor.id ? 'active' : ''}`}
-                onClick={() => setSelectedDoctor(doctor)}
+                onClick={() => { setSelectedDoctor(doctor); setShowSidebar(false); }}
               >
                 <div className="wa-avatar">
                   <i className="fas fa-user-md"></i>
@@ -325,6 +326,9 @@ function ChatWithDoctor() {
           <>
             {/* Chat Header */}
             <div className="wa-chat-header">
+              <button className="wa-mobile-back" onClick={() => { setShowSidebar(true); setSelectedDoctor(null); }}>
+                <i className="fas fa-arrow-left"></i>
+              </button>
               <div className="wa-avatar">
                 <i className="fas fa-user-md"></i>
               </div>

@@ -20,6 +20,7 @@ export default function DoctorChat() {
   const [isRecording, setIsRecording] = useState(false)
   const [recordingTime, setRecordingTime] = useState(0)
   const [fullscreenImage, setFullscreenImage] = useState(null)
+  const [showChat, setShowChat] = useState(false)
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
@@ -82,6 +83,14 @@ export default function DoctorChat() {
     
     return () => unsub()
   }, [selectedFarmer, doctor])
+
+  useEffect(() => {
+    if (!selectedFarmer) setShowChat(false)
+  }, [selectedFarmer])
+
+  useEffect(() => {
+    setShowChat(false)
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -247,7 +256,7 @@ export default function DoctorChat() {
   return (
     <div className="whatsapp-container">
       {/* Sidebar - Chat List */}
-      <aside className="whatsapp-sidebar">
+      <aside className={`whatsapp-sidebar ${showChat ? 'whatsapp-sidebar--hidden' : ''}`}>
         <div className="whatsapp-sidebar-header">
           <button className="whatsapp-back-btn" onClick={() => navigate('/doctor-dashboard')}>
             <i className="fas fa-arrow-left"></i>
@@ -285,7 +294,7 @@ export default function DoctorChat() {
               <div
                 key={farmer.uid}
                 className={`whatsapp-chat-item ${selectedFarmer?.uid === farmer.uid ? 'active' : ''}`}
-                onClick={() => setSelectedFarmer(farmer)}
+                onClick={() => { setSelectedFarmer(farmer); setShowChat(true) }}
               >
                 <div className="whatsapp-chat-avatar">
                   <i className="fas fa-user-circle"></i>
@@ -308,7 +317,7 @@ export default function DoctorChat() {
       </aside>
 
       {/* Main Chat Area */}
-      <main className="whatsapp-main">
+      <main className={`whatsapp-main ${showChat ? 'whatsapp-main--visible' : ''}`}>
         {!selectedFarmer ? (
           <div className="whatsapp-welcome">
             <div className="whatsapp-welcome-icon">
@@ -331,6 +340,9 @@ export default function DoctorChat() {
           <>
             {/* Chat Header */}
             <div className="whatsapp-chat-header">
+              <button className="whatsapp-mobile-back whatsapp-back-btn" onClick={() => { setShowChat(false); setSelectedFarmer(null); }}>
+                <i className="fas fa-arrow-left"></i>
+              </button>
               <div className="whatsapp-chat-user">
                 <div className="whatsapp-chat-avatar">
                   <i className="fas fa-user-circle"></i>

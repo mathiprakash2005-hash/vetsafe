@@ -51,6 +51,7 @@ export default function BuyerDashboard() {
     <div className="dashboard-container">
       <div className="bg-pattern"></div>
 
+      {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)} />}
       <aside className={`sidebar ${showSidebar ? 'active' : ''}`}>
         <div className="logo">
           <h1>🛒 VetSafe Tracker</h1>
@@ -148,12 +149,12 @@ export default function BuyerDashboard() {
                 ) : (
                   purchases.map(purchase => (
                     <tr key={purchase.id}>
-                      <td className="animal-id">#{purchase.certId?.slice(0, 8) || 'N/A'}</td>
-                      <td>{purchase.productType}</td>
-                      <td>{purchase.quantity} {purchase.productType === 'Milk' ? 'L' : purchase.productType === 'Eggs' ? 'pcs' : 'kg'}</td>
-                      <td>{purchase.farmerName || 'N/A'}</td>
-                      <td>{purchase.purchaseDate?.toDate().toLocaleDateString() || 'N/A'}</td>
-                      <td><span className="status-badge status-verified">✓ Verified</span></td>
+                      <td data-label="Cert ID" className="animal-id">#{purchase.certId?.slice(0, 8) || 'N/A'}</td>
+                      <td data-label="Product">{purchase.productType}</td>
+                      <td data-label="Quantity">{purchase.quantity} {purchase.productType === 'Milk' ? 'L' : purchase.productType === 'Eggs' ? 'pcs' : 'kg'}</td>
+                      <td data-label="Farmer">{purchase.farmerName || 'N/A'}</td>
+                      <td data-label="Date">{purchase.purchaseDate?.toDate().toLocaleDateString() || 'N/A'}</td>
+                      <td data-label="Status"><span className="status-badge status-verified">✓ Verified</span></td>
                     </tr>
                   ))
                 )}
@@ -162,6 +163,22 @@ export default function BuyerDashboard() {
           </div>
         </section>
       </main>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="bd-mobile-nav">
+        <button className="bd-mob-btn bd-mob-btn--active" onClick={() => navigate('/buyer-dashboard')}>
+          <i className="fas fa-chart-line" /><span>Home</span>
+        </button>
+        <button className="bd-mob-btn" onClick={() => navigate('/buyer-verify')}>
+          <i className="fas fa-certificate" /><span>Verify</span>
+        </button>
+        <button className="bd-mob-btn" onClick={() => document.getElementById('historySection')?.scrollIntoView({ behavior: 'smooth' })}>
+          <i className="fas fa-shopping-bag" /><span>History</span>
+        </button>
+        <button className="bd-mob-btn" onClick={handleLogout}>
+          <i className="fas fa-sign-out-alt" /><span>Logout</span>
+        </button>
+      </nav>
     </div>
   )
 }

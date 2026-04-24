@@ -64,6 +64,7 @@ export default function DoctorDashboard() {
     <div className="dashboard-container">
       <div className="bg-pattern"></div>
 
+      {showSidebar && <div className="sidebar-overlay" onClick={() => setShowSidebar(false)} />}
       <aside className={`sidebar ${showSidebar ? 'active' : ''}`}>
         <div className="logo">
           <h1>🩺 VetSafe Tracker</h1>
@@ -83,7 +84,7 @@ export default function DoctorDashboard() {
         </nav>
       </aside>
 
-      <button className="menu-toggle" onClick={() => setShowSidebar(!showSidebar)}>
+      <button className="menu-toggle" onClick={() => setShowSidebar(s => !s)}>
         <i className="fas fa-bars"></i>
       </button>
 
@@ -95,7 +96,7 @@ export default function DoctorDashboard() {
           </div>
           <div className="header-right">
             <button className="header-btn btn-secondary"><i className="fas fa-download"></i>Export Report</button>
-            <button className="header-btn btn-primary"><i className="fas fa-prescription"></i>New Prescription</button>
+            <button className="header-btn btn-primary" onClick={() => navigate('/consultation-requests')}><i className="fas fa-prescription"></i>New Prescription</button>
           </div>
         </header>
 
@@ -167,7 +168,7 @@ export default function DoctorDashboard() {
               <div className="action-title">Medicine Database</div>
               <div className="action-desc">Browse available medicines</div>
             </div>
-            <div className="action-card">
+            <div className="action-card" onClick={() => navigate('/analytics')}>
               <div className="action-icon"><i className="fas fa-chart-line"></i></div>
               <div className="action-title">View Analytics</div>
               <div className="action-desc">Check performance metrics</div>
@@ -201,13 +202,13 @@ export default function DoctorDashboard() {
                 ) : (
                   requests.map(req => (
                     <tr key={req.id}>
-                      <td className="request-id">{req.id.slice(0, 8)}</td>
-                      <td>{req.farmerName || 'N/A'}</td>
-                      <td>{req.animalId}</td>
-                      <td>{req.symptoms}</td>
-                      <td><span className={`status-badge status-${req.status}`}>{req.status}</span></td>
-                      <td>{req.createdAt?.toDate().toLocaleDateString()}</td>
-                      <td><button className="action-btn">Review</button></td>
+                      <td data-label="ID" className="request-id">{req.id.slice(0, 8)}</td>
+                      <td data-label="Farmer">{req.farmerName || 'N/A'}</td>
+                      <td data-label="Animal">{req.animalId}</td>
+                      <td data-label="Issue">{req.symptoms}</td>
+                      <td data-label="Status"><span className={`status-badge status-${req.status}`}>{req.status}</span></td>
+                      <td data-label="Date">{req.createdAt?.toDate().toLocaleDateString()}</td>
+                      <td data-label="Action"><button className="action-btn" onClick={() => navigate('/consultation-requests')}>Review</button></td>
                     </tr>
                   ))
                 )}
@@ -216,6 +217,24 @@ export default function DoctorDashboard() {
           </div>
         </section>
       </main>
+      {/* Mobile Bottom Nav */}
+      <nav className="dd-mobile-nav">
+        <button className="dd-mob-btn dd-mob-btn--active" onClick={() => navigate('/doctor-dashboard')}>
+          <i className="fas fa-chart-line" /><span>Home</span>
+        </button>
+        <button className="dd-mob-btn" onClick={() => navigate('/consultation-requests')}>
+          <i className="fas fa-inbox" /><span>Requests</span>
+        </button>
+        <button className="dd-mob-btn" onClick={() => navigate('/doctor-chat')}>
+          <i className="fas fa-comments" /><span>Chat</span>
+        </button>
+        <button className="dd-mob-btn" onClick={() => navigate('/analytics')}>
+          <i className="fas fa-chart-bar" /><span>Analytics</span>
+        </button>
+        <button className="dd-mob-btn" onClick={async () => { await signOut(auth); navigate('/') }}>
+          <i className="fas fa-sign-out-alt" /><span>Logout</span>
+        </button>
+      </nav>
     </div>
   )
 }
