@@ -31,18 +31,19 @@ def initialize_firebase():
         return True
     
     try:
-        cred = credentials.Certificate('firebase-service-account.json')
+        import json
+        firebase_json = os.environ.get('FIREBASE_CREDENTIALS')
+        if firebase_json:
+            cred = credentials.Certificate(json.loads(firebase_json))
+        else:
+            cred = credentials.Certificate('firebase-service-account.json')
         firebase_admin.initialize_app(cred)
         db = firestore.client()
         firebase_initialized = True
-        print("\n" + "="*60)
         print("✓ Firebase initialized successfully")
-        print("="*60)
         return True
     except Exception as e:
-        print("\n" + "="*60)
         print(f"✗ Firebase initialization error: {e}")
-        print("="*60)
         return False
 
 # Load trained ML model and preprocessing objects
