@@ -34,7 +34,9 @@ def initialize_firebase():
         import json
         firebase_json = os.environ.get('FIREBASE_CREDENTIALS')
         if firebase_json:
-            cred = credentials.Certificate(json.loads(firebase_json))
+            cred_dict = json.loads(firebase_json)
+            cred_dict['private_key'] = cred_dict['private_key'].replace('\\n', '\n')
+            cred = credentials.Certificate(cred_dict)
         else:
             cred = credentials.Certificate('firebase-service-account.json')
         firebase_admin.initialize_app(cred)
