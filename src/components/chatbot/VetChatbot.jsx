@@ -57,7 +57,7 @@ export default function VetChatbot() {
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [currentSpeakingIndex, setCurrentSpeakingIndex] = useState(null)
-  const [fabPos, setFabPos] = useState({ x: window.innerWidth - 86, y: window.innerHeight - 86 })
+  const [fabPos, setFabPos] = useState({ x: window.innerWidth ? window.innerWidth - 86 : 300, y: window.innerHeight ? window.innerHeight - 86 : 700 })
   const [winPos, setWinPos] = useState(null)
   const draggingFab = useRef(false)
   const draggingWin = useRef(false)
@@ -285,7 +285,7 @@ export default function VetChatbot() {
       setIsSpeaking(true)
       setCurrentSpeakingIndex(messageIndex)
 
-      const response = await fetch('http://localhost:5000/api/tts', {
+      const response = await fetch(`${API_URL}/api/tts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -385,6 +385,8 @@ export default function VetChatbot() {
             '⚠️ Sorry, I encountered a connection issue. Please check your internet connection and try again.\n\nFor urgent animal health concerns, contact your veterinarian directly.',
           timestamp: new Date(),
           isError: true,
+          canRetry: true,
+          retryText: userText,
         },
       ])
     } finally {
@@ -564,6 +566,17 @@ export default function VetChatbot() {
                       className={`vc-bubble ${msg.role === 'user' ? 'vc-bubble--user' : 'vc-bubble--bot'} ${msg.isError ? 'vc-bubble--error' : ''}`}
                     >
                       <div className="vc-bubble-content">{renderContent(msg.content)}</div>
+                      {msg.canRetry && (
+                        <button
+                          className="vc-retry-btn"
+                          onClick={() => {
+                            setMessages(prev => prev.filter((_, i) => i !== idx))
+                            sendMessage(msg.retryText)
+                          }}
+                        >
+                          🔄 Retry
+                        </button>
+                      )}
                       <div className="vc-bubble-footer">
                         <div className="vc-bubble-time">{formatTime(msg.timestamp)}</div>
                         {msg.role === 'assistant' && !msg.isError && (

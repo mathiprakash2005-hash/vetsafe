@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "466297998023-imjvku0rovggd2us5srpkdhsbu5ubl4a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mathi.vetsafe",
+            "certificate_hash": "095efadcd9ae4f1a38c6efbface498efd26ede8c"
+          }
+        },
+        {
           "client_id": "466297998023-q35998n7h1o588sssmc3jludltp9k9an.apps.googleusercontent.com",
           "client_type": 3
         }

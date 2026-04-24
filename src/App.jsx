@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import Landing from './components/Landing'
 import FarmerRegister from './components/farmer/FarmerRegister'
 import FarmerLogin from './components/farmer/FarmerLogin'
@@ -28,9 +29,22 @@ import DoctorChat from './components/chat/DoctorChat'
 import ChatWithDoctor from './components/farmer/ChatWithDoctor'
 import Analytics from './components/doctor/Analytics'
 
+function BackButtonHandler() {
+  const navigate = useNavigate()
+  useEffect(() => {
+    const handleBack = (e) => {
+      e.detail.register(10, () => navigate(-1))
+    }
+    document.addEventListener('ionBackButton', handleBack)
+    return () => document.removeEventListener('ionBackButton', handleBack)
+  }, [navigate])
+  return null
+}
+
 function App() {
   return (
     <Router>
+      <BackButtonHandler />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/farmer-register" element={<FarmerRegister />} />
