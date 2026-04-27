@@ -5,6 +5,7 @@ import {
   collection, addDoc, query, onSnapshot, serverTimestamp,
   doc, getDoc, deleteDoc
 } from '../../config/firebase'
+import VoiceService from '../../utils/VoiceService'
 import './Chat.css'
 
 const CLOUDINARY_CLOUD = 'dc7t2fvt9'
@@ -117,6 +118,8 @@ export default function Chat() {
   const audioChunksRef = useRef([])
   const imageInputRef = useRef(null)
   const timerRef = useRef(null)
+
+  const [isListening, setIsListening] = useState(false)
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (user) => {
@@ -394,7 +397,7 @@ export default function Chat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type a message..."
+              placeholder={isListening ? '🎤 Listening...' : 'Type a message...'}
               rows={1}
               disabled={uploading}
             />
@@ -403,15 +406,31 @@ export default function Chat() {
                 <i className="fas fa-paper-plane"></i>
               </button>
             ) : (
-              <button
-                className="chat-icon-btn chat-mic-btn"
-                onMouseDown={startRecording}
-                onTouchStart={(e) => { e.preventDefault(); startRecording() }}
-                disabled={uploading}
-                title="Hold to record"
-              >
-                <i className="fas fa-microphone"></i>
-              </button>
+              <>
+                <button
+                  className={`chat-icon-btn ${isListening ? 'chat-icon-btn--listening' : ''}`}
+                  onClick={async () => {
+                    if (isListening) { await VoiceService.stopListening(); setIsListening(false); return }
+                    try {
+                      setIsListening(true)
+                      const transcript = await VoiceService.startListening('ta-IN')
+                      if (transcript) setInput(prev => prev + (prev ? ' ' : '') + transcript)
+                    } catch (e) { console.error(e) } finally { setIsListening(false) }
+                  }}
+                  title="Voice to text"
+                >
+                  <i className={`fas fa-microphone${isListening ? '-slash' : ''}`}></i>
+                </button>
+                <button
+                  className="chat-icon-btn chat-mic-btn"
+                  onMouseDown={startRecording}
+                  onTouchStart={(e) => { e.preventDefault(); startRecording() }}
+                  disabled={uploading}
+                  title="Hold to record audio"
+                >
+                  <i className="fas fa-headphones"></i>
+                </button>
+              </>
             )}
           </>
         )}

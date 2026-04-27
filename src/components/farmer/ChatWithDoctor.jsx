@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth, db, collection, query, where, getDocs, addDoc, onSnapshot, orderBy, serverTimestamp } from '../../config/firebase'
 import { uploadToCloudinary } from '../../utils/cloudinary'
+import VoiceService from '../../utils/VoiceService'
 import './ChatWithDoctor.css'
 
 function ChatWithDoctor() {
@@ -19,6 +20,8 @@ function ChatWithDoctor() {
   const [showSidebar, setShowSidebar] = useState(true)
   const [fullscreenImage, setFullscreenImage] = useState(null)
   
+  const [isListening, setIsListening] = useState(false)
+
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
   const fileInputRef = useRef(null)
@@ -443,21 +446,37 @@ function ChatWithDoctor() {
                     <input
                       type="text"
                       className="wa-input"
-                      placeholder="Type a message"
+                      placeholder={isListening ? '🎤 Listening...' : 'Type a message'}
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                       disabled={sending}
                     />
                   </form>
-                  
+
                   {newMessage.trim() ? (
                     <button className="wa-send-btn" onClick={handleSendMessage} disabled={sending}>
                       <i className="fas fa-paper-plane"></i>
                     </button>
                   ) : (
-                    <button className="wa-mic-btn" onClick={startRecording}>
-                      <i className="fas fa-microphone"></i>
-                    </button>
+                    <>
+                      <button
+                        className={`wa-icon-btn ${isListening ? 'wa-icon-btn--listening' : ''}`}
+                        onClick={async () => {
+                          if (isListening) { await VoiceService.stopListening(); setIsListening(false); return }
+                          try {
+                            setIsListening(true)
+                            const transcript = await VoiceService.startListening('ta-IN')
+                            if (transcript) setNewMessage(prev => prev + (prev ? ' ' : '') + transcript)
+                          } catch (e) { console.error(e) } finally { setIsListening(false) }
+                        }}
+                        title="Voice to text"
+                      >
+                        <i className={`fas fa-microphone${isListening ? '-slash' : ''}`}></i>
+                      </button>
+                      <button className="wa-mic-btn" onClick={startRecording} title="Send audio message">
+                        <i className="fas fa-headphones"></i>
+                      </button>
+                    </>
                   )}
                 </>
               )}

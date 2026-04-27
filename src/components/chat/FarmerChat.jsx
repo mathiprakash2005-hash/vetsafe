@@ -5,6 +5,7 @@ import {
   collection, query, where, getDocs, addDoc, onSnapshot, serverTimestamp,
   doc, getDoc
 } from '../../config/firebase'
+import VoiceService from '../../utils/VoiceService'
 import './FarmerChat.css'
 
 export default function FarmerChat() {
@@ -20,6 +21,8 @@ export default function FarmerChat() {
   const [fullscreenImage, setFullscreenImage] = useState(null)
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
+
+  const [isListening, setIsListening] = useState(false)
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (user) => {
@@ -289,11 +292,26 @@ export default function FarmerChat() {
                 <input
                   type="text"
                   className="fc-text-input"
-                  placeholder="Type a message"
+                  placeholder={isListening ? '🎤 Listening...' : 'Type a message'}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={sending}
                 />
+                <button
+                  type="button"
+                  className={`fc-icon-btn ${isListening ? 'fc-icon-btn--listening' : ''}`}
+                  onClick={async () => {
+                    if (isListening) { await VoiceService.stopListening(); setIsListening(false); return }
+                    try {
+                      setIsListening(true)
+                      const transcript = await VoiceService.startListening('ta-IN')
+                      if (transcript) setInput(prev => prev + (prev ? ' ' : '') + transcript)
+                    } catch (e) { console.error(e) } finally { setIsListening(false) }
+                  }}
+                  title="Voice input"
+                >
+                  <i className={`fas fa-microphone${isListening ? '-slash' : ''}`}></i>
+                </button>
                 <button type="submit" className="fc-send-btn" disabled={!input.trim() || sending}>
                   {sending ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
                 </button>

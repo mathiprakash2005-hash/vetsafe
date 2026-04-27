@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { auth, db, collection, query, where, getDocs, addDoc, serverTimestamp } from '../../config/firebase'
+import VoiceService from '../../utils/VoiceService'
 import './SharedStyles.css'
 import './DoctorConsultation.css'
 
@@ -12,37 +13,37 @@ function DoctorConsultation() {
   const [loading, setLoading] = useState(false)
   const [loadingAnimals, setLoadingAnimals] = useState(true)
   const [success, setSuccess] = useState(false)
-  const [isListening, setIsListening] = useState(false)
-  const recognitionRef = useRef(null)
+  const [isListeningTa, setIsListeningTa] = useState(false)
+  const [isListeningEn, setIsListeningEn] = useState(false)
 
-  useEffect(() => {
-    // Initialize Speech Recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      recognitionRef.current = new SpeechRecognition()
-      recognitionRef.current.continuous = false
-      recognitionRef.current.interimResults = false
-      recognitionRef.current.lang = 'ta-IN'
-      
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript
-        setFormData(prev => ({
-          ...prev,
-          symptoms: prev.symptoms + (prev.symptoms ? ' ' : '') + transcript
-        }))
-        setIsListening(false)
-      }
+  const appendTranscript = (transcript) =>
+    setFormData(prev => ({ ...prev, symptoms: prev.symptoms + (prev.symptoms ? ' ' : '') + transcript }))
 
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error)
-        setIsListening(false)
-      }
+  const toggleVoiceInput = async (lang) => {
+    const isTamil = lang === 'ta-IN'
+    const isActive = isTamil ? isListeningTa : isListeningEn
+    const setActive = isTamil ? setIsListeningTa : setIsListeningEn
 
-      recognitionRef.current.onend = () => {
-        setIsListening(false)
-      }
+    if (isActive) {
+      await VoiceService.stopListening()
+      setActive(false)
+      return
     }
 
+    try {
+      setActive(true)
+      const transcript = await VoiceService.startListening(lang)
+      if (transcript) appendTranscript(transcript)
+      else console.warn('No speech detected')
+    } catch (e) {
+      console.error('Voice input error:', e)
+      alert(`Voice error: ${e.message}`)
+    } finally {
+      setActive(false)
+    }
+  }
+
+  useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       if (!currentUser) {
         navigate('/farmer-login')
@@ -92,22 +93,6 @@ function DoctorConsultation() {
     } catch (error) {
       console.error('Error loading animals:', error)
       setLoadingAnimals(false)
-    }
-  }
-
-  const toggleVoiceInput = (language) => {
-    if (!recognitionRef.current) {
-      alert('Voice recognition not supported in your browser')
-      return
-    }
-
-    if (isListening) {
-      recognitionRef.current.stop()
-      setIsListening(false)
-    } else {
-      recognitionRef.current.lang = language
-      recognitionRef.current.start()
-      setIsListening(true)
     }
   }
 
@@ -380,7 +365,7 @@ function DoctorConsultation() {
                   <div className="voice-controls">
                     <button
                       type="button"
-                      className={`voice-btn ${isListening ? 'listening' : ''}`}
+                      className={`voice-btn ${isListeningTa ? 'listening' : ''}`}
                       onClick={() => toggleVoiceInput('ta-IN')}
                       title="Speak in Tamil"
                     >
@@ -389,7 +374,7 @@ function DoctorConsultation() {
                     </button>
                     <button
                       type="button"
-                      className={`voice-btn ${isListening ? 'listening' : ''}`}
+                      className={`voice-btn ${isListeningEn ? 'listening' : ''}`}
                       onClick={() => toggleVoiceInput('en-IN')}
                       title="Speak in English"
                     >
@@ -397,10 +382,10 @@ function DoctorConsultation() {
                       <span>English</span>
                     </button>
                   </div>
-                  {isListening && (
+                  {(isListeningTa || isListeningEn) && (
                     <div className="listening-indicator">
                       <span className="pulse"></span>
-                      Listening... Speak now / கேட்கிறது... இப்போது பேசுங்கள்
+                      {isListeningTa ? 'கேட்கிறது... இப்போது பேசுங்கள்' : 'Listening... Speak now'}
                     </div>
                   )}
                 </div>

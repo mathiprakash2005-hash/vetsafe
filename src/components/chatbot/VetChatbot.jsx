@@ -6,6 +6,7 @@
 // ============================================================
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import VoiceService from '../../utils/VoiceService'
 import './VetChatbot.css'
 
 // ── System prompt: scopes the AI to poultry/veterinary topics ──
@@ -63,21 +64,26 @@ export default function VetChatbot() {
   const draggingWin = useRef(false)
   const dragOffset = useRef({ x: 0, y: 0 })
   const fabMoved = useRef(false)
+  const dragStartPos = useRef({ x: 0, y: 0 })
   const fabRef = useRef(null)
   const winRef = useRef(null)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
-  const recognitionRef = useRef(null)
-  const speechSynthesisRef = useRef(null)
 
   // ── Drag logic ──
   useEffect(() => {
+    const DRAG_THRESHOLD = 6 // px — must move this much to count as a drag
+
     const onMouseMove = (e) => {
       if (draggingFab.current) {
-        fabMoved.current = true
-        const x = Math.min(Math.max(0, e.clientX - dragOffset.current.x), window.innerWidth - 58)
-        const y = Math.min(Math.max(0, e.clientY - dragOffset.current.y), window.innerHeight - 58)
-        setFabPos({ x, y })
+        const dx = Math.abs(e.clientX - dragStartPos.current.x)
+        const dy = Math.abs(e.clientY - dragStartPos.current.y)
+        if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) fabMoved.current = true
+        if (fabMoved.current) {
+          const x = Math.min(Math.max(0, e.clientX - dragOffset.current.x), window.innerWidth - 64)
+          const y = Math.min(Math.max(0, e.clientY - dragOffset.current.y), window.innerHeight - 64)
+          setFabPos({ x, y })
+        }
       }
       if (draggingWin.current) {
         const w = winRef.current?.offsetWidth || 380
@@ -91,10 +97,15 @@ export default function VetChatbot() {
     const onTouchMove = (e) => {
       const t = e.touches[0]
       if (draggingFab.current) {
-        const x = Math.min(Math.max(0, t.clientX - dragOffset.current.x), window.innerWidth - 58)
-        const y = Math.min(Math.max(0, t.clientY - dragOffset.current.y), window.innerHeight - 58)
-        setFabPos({ x, y })
-        e.preventDefault()
+        const dx = Math.abs(t.clientX - dragStartPos.current.x)
+        const dy = Math.abs(t.clientY - dragStartPos.current.y)
+        if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) fabMoved.current = true
+        if (fabMoved.current) {
+          const x = Math.min(Math.max(0, t.clientX - dragOffset.current.x), window.innerWidth - 64)
+          const y = Math.min(Math.max(0, t.clientY - dragOffset.current.y), window.innerHeight - 64)
+          setFabPos({ x, y })
+          e.preventDefault()
+        }
       }
       if (draggingWin.current) {
         const w = winRef.current?.offsetWidth || 380
@@ -133,203 +144,51 @@ export default function VetChatbot() {
     }
   }, [isOpen, isMinimized])
 
-  // Detect WebView / Capacitor environment
-  const isWebView = /android/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent) || !!window.Capacitor
-
-  // Initialize Speech Recognition (Tamil) — not supported in Android WebView
-  useEffect(() => {
-    if (isWebView) return // skip in WebView
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      recognitionRef.current = new SpeechRecognition()
-      recognitionRef.current.continuous = false
-      recognitionRef.current.interimResults = false
-      recognitionRef.current.lang = 'ta-IN' // Tamil language
-
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript
-        setInput(transcript)
-        setIsListening(false)
-      }
-
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error)
-        setIsListening(false)
-      }
-
-      recognitionRef.current.onend = () => {
-        setIsListening(false)
-      }
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop()
-      }
-    }
-  }, [])
-
-  // Voice input toggle
-  const toggleVoiceInput = () => {
-    if (isWebView) {
-      alert('Voice input is not supported in the app. Please type your question.')
-      return
-    }
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.')
-      return
-    }
-
+  // Voice input — via VoiceService (Capacitor native on Android, Web fallback on browser)
+  const toggleVoiceInput = async () => {
     if (isListening) {
-      recognitionRef.current.stop()
+      await VoiceService.stopListening()
       setIsListening(false)
-    } else {
-      recognitionRef.current.start()
+      return
+    }
+    try {
       setIsListening(true)
+      const transcript = await VoiceService.startListening('ta-IN')
+      if (transcript) setInput(transcript)
+    } catch (e) {
+      console.error('Voice input error:', e)
+    } finally {
+      setIsListening(false)
     }
   }
 
-  // Text-to-Speech (Tamil)
+  // Text-to-Speech — works on both Android (Capacitor) and web (SpeechSynthesis)
   const speakText = async (text, messageIndex) => {
-    // Remove markdown formatting for speech
     const cleanText = text
       .replace(/\*\*(.*?)\*\*/g, '$1')
       .replace(/[#*_~`]/g, '')
       .replace(/\n/g, ' ')
+      .trim()
 
-    // Check if text contains Tamil characters
-    const hasTamil = /[\u0B80-\u0BFF]/.test(cleanText)
+    if (!cleanText) return
 
-    if ('speechSynthesis' in window) {
-      // Stop any ongoing speech
-      window.speechSynthesis.cancel()
+    const lang = /[\u0B80-\u0BFF]/.test(cleanText) ? 'ta-IN' : 'en-US'
 
-      setIsSpeaking(true)
-      setCurrentSpeakingIndex(messageIndex)
+    setIsSpeaking(true)
+    setCurrentSpeakingIndex(messageIndex)
 
-      // Wait for voices to load
-      const loadVoices = () => {
-        return new Promise((resolve) => {
-          let voices = window.speechSynthesis.getVoices()
-          if (voices.length > 0) {
-            resolve(voices)
-          } else {
-            window.speechSynthesis.onvoiceschanged = () => {
-              voices = window.speechSynthesis.getVoices()
-              resolve(voices)
-            }
-          }
-        })
-      }
-
-      try {
-        const voices = await loadVoices()
-        
-        // Find Tamil voice
-        let tamilVoice = voices.find(voice => 
-          voice.lang === 'ta-IN' || 
-          voice.lang === 'ta' || 
-          voice.name.toLowerCase().includes('tamil')
-        )
-
-        // If no Tamil voice, try Google TTS API as fallback
-        if (!tamilVoice && hasTamil) {
-          console.log('No Tamil voice found, using Google TTS API')
-          await playGoogleTTS(cleanText, messageIndex)
-          return
-        }
-
-        const utterance = new SpeechSynthesisUtterance(cleanText)
-        
-        if (tamilVoice) {
-          utterance.voice = tamilVoice
-          utterance.lang = 'ta-IN'
-        } else {
-          utterance.lang = hasTamil ? 'ta-IN' : 'en-US'
-        }
-        
-        utterance.rate = 0.85
-        utterance.pitch = 1
-        utterance.volume = 1
-
-        utterance.onend = () => {
-          setIsSpeaking(false)
-          setCurrentSpeakingIndex(null)
-        }
-
-        utterance.onerror = (error) => {
-          console.error('Speech synthesis error:', error)
-          setIsSpeaking(false)
-          setCurrentSpeakingIndex(null)
-          
-          // Try Google TTS as fallback
-          if (hasTamil) {
-            playGoogleTTS(cleanText, messageIndex)
-          }
-        }
-
-        window.speechSynthesis.speak(utterance)
-      } catch (error) {
-        console.error('Voice loading error:', error)
-        setIsSpeaking(false)
-        setCurrentSpeakingIndex(null)
-      }
-    } else {
-      alert('Text-to-speech is not supported in your browser.')
-    }
-  }
-
-  // Google TTS API fallback for Tamil
-  const playGoogleTTS = async (text, messageIndex) => {
     try {
-      setIsSpeaking(true)
-      setCurrentSpeakingIndex(messageIndex)
-
-      const response = await fetch(`${API_URL}/api/tts`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: text,
-          language: 'ta'
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('TTS API failed')
-      }
-
-      const audioBlob = await response.blob()
-      const audioUrl = URL.createObjectURL(audioBlob)
-      const audio = new Audio(audioUrl)
-
-      audio.onended = () => {
-        setIsSpeaking(false)
-        setCurrentSpeakingIndex(null)
-        URL.revokeObjectURL(audioUrl)
-      }
-
-      audio.onerror = () => {
-        setIsSpeaking(false)
-        setCurrentSpeakingIndex(null)
-        URL.revokeObjectURL(audioUrl)
-      }
-
-      await audio.play()
-    } catch (error) {
-      console.error('Google TTS error:', error)
+      await VoiceService.speak(cleanText, { lang, rate: 0.9, pitch: 1.0, volume: 1.0 })
+    } catch (e) {
+      console.error('TTS error:', e)
+    } finally {
       setIsSpeaking(false)
       setCurrentSpeakingIndex(null)
-      alert('Unable to play Tamil audio. Please check your connection.')
     }
   }
 
-  // Stop speech
-  const stopSpeaking = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-    }
+  const stopSpeaking = async () => {
+    await VoiceService.stopSpeaking()
     setIsSpeaking(false)
     setCurrentSpeakingIndex(null)
   }
@@ -452,6 +311,7 @@ export default function VetChatbot() {
         onMouseDown={(e) => {
           draggingFab.current = true
           fabMoved.current = false
+          dragStartPos.current = { x: e.clientX, y: e.clientY }
           dragOffset.current = { x: e.clientX - fabPos.x, y: e.clientY - fabPos.y }
           e.preventDefault()
         }}
@@ -459,6 +319,7 @@ export default function VetChatbot() {
           draggingFab.current = true
           fabMoved.current = false
           const t = e.touches[0]
+          dragStartPos.current = { x: t.clientX, y: t.clientY }
           dragOffset.current = { x: t.clientX - fabPos.x, y: t.clientY - fabPos.y }
         }}
         onClick={() => {
@@ -589,7 +450,7 @@ export default function VetChatbot() {
                                 speakText(msg.content, idx)
                               }
                             }}
-                            title={currentSpeakingIndex === idx ? 'Stop speaking' : 'Read aloud in Tamil'}
+                            title={currentSpeakingIndex === idx ? 'Stop' : 'Read aloud'}
                           >
                             {currentSpeakingIndex === idx ? (
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -645,10 +506,10 @@ export default function VetChatbot() {
               <div className="vc-input-area">
                 <div className="vc-input-wrap">
                   <button
-                    className={`vc-voice-btn ${isListening ? 'vc-voice-btn--active' : ''} ${isWebView ? 'vc-voice-btn--disabled' : ''}`}
+                    className={`vc-voice-btn ${isListening ? 'vc-voice-btn--active' : ''}`}
                     onClick={toggleVoiceInput}
                     disabled={isLoading}
-                    title={isWebView ? 'Voice not supported in app' : isListening ? 'Stop listening' : 'Speak in Tamil'}
+                    title={isListening ? 'Stop listening' : 'Speak in Tamil'}
                   >
                     {isListening ? (
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">

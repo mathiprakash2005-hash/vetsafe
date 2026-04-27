@@ -1,5 +1,8 @@
 {
   "appId": "com.mathi.vetsafe",
   "appName": "vetsafe Tracker",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
 }

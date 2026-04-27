@@ -6,6 +6,7 @@ import {
   doc, getDoc 
 } from '../../config/firebase'
 import { uploadToCloudinary } from '../../utils/cloudinary'
+import VoiceService from '../../utils/VoiceService'
 import './DoctorChat.css'
 
 export default function DoctorChat() {
@@ -21,6 +22,8 @@ export default function DoctorChat() {
   const [recordingTime, setRecordingTime] = useState(0)
   const [fullscreenImage, setFullscreenImage] = useState(null)
   const [showChat, setShowChat] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
   const cameraInputRef = useRef(null)
@@ -471,7 +474,7 @@ export default function DoctorChat() {
                   <input
                     type="text"
                     className="whatsapp-input"
-                    placeholder="Type a message"
+                    placeholder={isListening ? '🎤 Listening...' : 'Type a message'}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     disabled={sending}
@@ -489,9 +492,26 @@ export default function DoctorChat() {
                       )}
                     </button>
                   ) : (
-                    <button type="button" className="whatsapp-icon-btn" onClick={startRecording} title="Voice message">
-                      <i className="fas fa-microphone"></i>
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        className={`whatsapp-icon-btn ${isListening ? 'whatsapp-icon-btn--listening' : ''}`}
+                        onClick={async () => {
+                          if (isListening) { await VoiceService.stopListening(); setIsListening(false); return }
+                          try {
+                            setIsListening(true)
+                            const transcript = await VoiceService.startListening('ta-IN')
+                            if (transcript) setInput(prev => prev + (prev ? ' ' : '') + transcript)
+                          } catch (e) { console.error(e) } finally { setIsListening(false) }
+                        }}
+                        title="Voice to text"
+                      >
+                        <i className={`fas fa-microphone${isListening ? '-slash' : ''}`}></i>
+                      </button>
+                      <button type="button" className="whatsapp-icon-btn" onClick={startRecording} title="Send audio message">
+                        <i className="fas fa-headphones"></i>
+                      </button>
+                    </>
                   )}
                 </form>
               )}
